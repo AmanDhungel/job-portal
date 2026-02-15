@@ -50,11 +50,7 @@ export default async function JobDetailPage({
             </div>
           </div>
 
-          <ApplyButton
-            jobId={jobData._id}
-            userId={userId}
-            jobTitle={jobData.title}
-          />
+          <ApplyButton jobId={jobData._id} jobTitle={jobData.title} />
         </div>
 
         <hr className="my-8" />

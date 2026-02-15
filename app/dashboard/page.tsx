@@ -1,10 +1,9 @@
-// app/dashboard/page.tsx
 import { auth } from "@clerk/nextjs/server";
 import dbConnect from "@/lib/dbConnect";
 import Job from "@/lib/models/Job.model";
 import { Application } from "@/lib/models/Application.model";
 import Link from "next/link";
-import DeleteJobButton from "@/components/DeleteJobButton"; // Client component
+import DeleteJobButton from "@/components/DeleteJobButton";
 
 type Applicant = {
   _id: string;
@@ -47,7 +46,6 @@ export default async function CompanyDashboard() {
     <div className="p-8 max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Employer Dashboard</h1>
-        {/* ADD NEW BUTTON */}
         <Link
           href="/dashboard/new"
           className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow-md">

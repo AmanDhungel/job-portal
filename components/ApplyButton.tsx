@@ -1,21 +1,37 @@
 "use client";
 import { SignInButton, useUser } from "@clerk/nextjs";
+import { applyToJobAction } from "@/app/actions/jobActions";
+import { useState } from "react";
 
 export default function ApplyButton({
   jobId,
-  userId,
   jobTitle,
 }: {
   jobId: string;
-  userId: string | null;
   jobTitle: string;
 }) {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
+  const [isPending, setIsPending] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 
   const handleApply = async () => {
-    alert(
-      `Success! Your application for Job ${jobTitle} has been sent to the employer.`,
-    );
+    setIsPending(true);
+    try {
+      const result = (await applyToJobAction(jobId, {
+        name: user?.fullName ?? "",
+        email: user?.emailAddresses[0].emailAddress ?? "",
+      })) as { error?: string } | undefined;
+      if (result?.error) {
+        alert(result.error);
+        setStatus("error");
+      } else {
+        setStatus("success");
+      }
+    } catch (err) {
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsPending(false);
+    }
   };
 
   if (!isSignedIn) {
@@ -28,11 +44,24 @@ export default function ApplyButton({
     );
   }
 
+  if (status === "success") {
+    return (
+      <button
+        disabled
+        className="bg-gray-400 text-white px-8 py-3 rounded-xl font-bold cursor-not-allowed">
+        Application Sent ✓
+      </button>
+    );
+  }
+
   return (
     <button
       onClick={handleApply}
-      className="bg-green-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-700 transition">
-      Apply Now
+      disabled={isPending}
+      className={`px-8 py-3 rounded-xl font-bold transition text-white ${
+        isPending ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
+      }`}>
+      {isPending ? "Processing..." : "Apply Now"}
     </button>
   );
 }

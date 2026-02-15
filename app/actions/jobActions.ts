@@ -23,6 +23,9 @@ export async function updateJob(jobId: string, formData: FormData) {
     title: formData.get("title"),
     description: formData.get("description"),
     location: formData.get("location"),
+    companyName: formData.get("companyName"),
+    salary: formData.get("salary"),
+    category: formData.get("category"),
   };
 
   await Job.findOneAndUpdate({ _id: jobId, clerkId: userId }, updateData);

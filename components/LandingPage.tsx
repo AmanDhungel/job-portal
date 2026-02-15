@@ -120,13 +120,12 @@ export default function LandingPage() {
             <p className="mb-8 text-blue-100">
               Join thousands of others building their career with Elevate.
             </p>
-            <Link
-              href="/sign-up"
-              className="bg-white text-blue-600 px-10 py-3 rounded-full font-bold hover:bg-gray-100 transition">
-              Create Free Account
-            </Link>
+            <SignInButton mode="modal">
+              <button className="bg-white text-blue-600 px-10 py-3 rounded-full font-bold hover:bg-gray-100 transition">
+                Create Free Account
+              </button>
+            </SignInButton>
           </div>
-          {/* Decorative Circle */}
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500 rounded-full opacity-50"></div>
         </div>
       </section>
