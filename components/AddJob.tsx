@@ -3,11 +3,53 @@ import { useUser } from "@clerk/nextjs";
 import { createJobAction } from "@/app/actions/jobActions";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+export const formSchema = z.object({
+  title: z.string().min(2, "Title is too short"),
+  companyName: z.string().min(1, "Company name is required"),
+  location: z.string().min(1, "Location is required"),
+  category: z.string().min(1, "Please select a category"),
+  salary: z.string().min(1, "Salary range is required"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+});
 
 export default function AddJobPage() {
   const { isLoaded, isSignedIn } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      companyName: "",
+      location: "",
+      category: "",
+      salary: "",
+      description: "",
+    },
+  });
 
   if (!isLoaded)
     return <div className="p-10 text-center">Loading session...</div>;
@@ -17,13 +59,18 @@ export default function AddJobPage() {
     return null;
   }
 
-  async function handleSubmit(formData: FormData) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     try {
+      const formData = new FormData();
+      Object.entries(values).forEach(([key, value]) =>
+        formData.append(key, value),
+      );
+
       await createJobAction(formData);
       router.push("/dashboard");
     } catch (error) {
-      alert("Failed to post job. Please try again.");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -35,97 +82,126 @@ export default function AddJobPage() {
         Post a New Vacancy
       </h1>
 
-      <form action={handleSubmit} className="space-y-4">
-        {/* Row 1: Title & Company */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Job Title
-            </label>
-            <input
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Job Title */}
+            <FormField
+              control={form.control}
               name="title"
-              required
-              placeholder="e.g. Frontend Developer"
-              className="w-full p-2 border rounded-md mt-1 focus:ring-2 focus:ring-blue-500 outline-none"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Job Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Frontend Developer" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Company Name
-            </label>
-            <input
+
+            {/* Company Name */}
+            <FormField
+              control={form.control}
               name="companyName"
-              required
-              placeholder="Elevate Workforce"
-              className="w-full p-2 border rounded-md mt-1 focus:ring-2 focus:ring-blue-500 outline-none"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Company Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Elevate Workforce" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
-        </div>
 
-        {/* Row 2: Location & Category */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Location
-            </label>
-            <input
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Location */}
+            <FormField
+              control={form.control}
               name="location"
-              required
-              placeholder="Kathmandu, Nepal"
-              className="w-full p-2 border rounded-md mt-1 focus:ring-2 focus:ring-blue-500 outline-none"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Kathmandu, Nepal" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Category */}
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="IT & Technology">
+                        IT & Technology
+                      </SelectItem>
+                      <SelectItem value="Healthcare">Healthcare</SelectItem>
+                      <SelectItem value="Banking">Banking</SelectItem>
+                      <SelectItem value="Education">Education</SelectItem>
+                      <SelectItem value="Marketing">Marketing</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Category
-            </label>
-            <select
-              name="category"
-              required
-              className="w-full p-2 border rounded-md mt-1 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
-              <option value="">Select Category</option>
-              <option value="IT & Technology">IT & Technology</option>
-              <option value="Healthcare">Healthcare</option>
-              <option value="Banking">Banking</option>
-              <option value="Education">Education</option>
-              <option value="Marketing">Marketing</option>
-            </select>
-          </div>
-        </div>
 
-        {/* Salary Field */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Salary Range
-          </label>
-          <input
+          {/* Salary */}
+          <FormField
+            control={form.control}
             name="salary"
-            required
-            placeholder="e.g. Rs. 50,000 - 80,000 per month"
-            className="w-full p-2 border rounded-md mt-1 focus:ring-2 focus:ring-blue-500 outline-none"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Salary Range</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g. Rs. 50,000 - 80,000" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
 
-        {/* Description Field */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Job Description
-          </label>
-          <textarea
+          {/* Description */}
+          <FormField
+            control={form.control}
             name="description"
-            required
-            rows={5}
-            placeholder="Outline the responsibilities and requirements..."
-            className="w-full p-2 border rounded-md mt-1 focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
-        </div>
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Job Description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Outline the responsibilities..."
+                    className="min-h-[120px]"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-3 rounded-md font-bold hover:bg-blue-700 transition disabled:bg-gray-400">
-          {loading ? "Posting..." : "Post Job Listing"}
-        </button>
-      </form>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Posting..." : "Post Job Listing"}
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 }

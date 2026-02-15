@@ -1,7 +1,38 @@
-// components/EditJobForm.tsx
 "use client";
 import { updateJob } from "@/app/actions/jobActions";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useState } from "react";
+
+export const formSchema = z.object({
+  title: z.string().min(2, "Title is too short"),
+  companyName: z.string().min(1, "Company name is required"),
+  location: z.string().min(1, "Location is required"),
+  category: z.string().min(1, "Please select a category"),
+  salary: z.string().min(1, "Salary range is required"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+});
 
 export default function EditJobForm({
   job,
@@ -9,66 +40,157 @@ export default function EditJobForm({
   job: { _id: string; title: string; description: string; location: string };
 }) {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
-  async function handleUpdate(formData: FormData) {
-    await updateJob(job._id, formData);
-    router.push("/dashboard");
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      companyName: "",
+      location: "",
+      category: "",
+      salary: "",
+      description: "",
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      Object.entries(values).forEach(([key, value]) =>
+        formData.append(key, value),
+      );
+
+      await updateJob(job._id, formData);
+      router.push("/dashboard");
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <form
-      action={handleUpdate}
-      className="space-y-6 bg-white p-8 rounded-xl shadow-sm border">
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">
-          Job Title
-        </label>
-        <input
-          name="title"
-          defaultValue={job.title}
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-          required
-        />
-      </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Job Title */}
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Job Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g. Frontend Developer" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">
-          Location
-        </label>
-        <input
-          name="location"
-          defaultValue={job.location}
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-          required
-        />
-      </div>
+          {/* Company Name */}
+          <FormField
+            control={form.control}
+            name="companyName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Company Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Elevate Workforce" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">
-          Description
-        </label>
-        <textarea
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Location */}
+          <FormField
+            control={form.control}
+            name="location"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Location</FormLabel>
+                <FormControl>
+                  <Input placeholder="Kathmandu, Nepal" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Category */}
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Category" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="IT & Technology">
+                      IT & Technology
+                    </SelectItem>
+                    <SelectItem value="Healthcare">Healthcare</SelectItem>
+                    <SelectItem value="Banking">Banking</SelectItem>
+                    <SelectItem value="Education">Education</SelectItem>
+                    <SelectItem value="Marketing">Marketing</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Salary */}
+        <FormField
+          control={form.control}
+          name="salary"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Salary Range</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g. Rs. 50,000 - 80,000" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Description */}
+        <FormField
+          control={form.control}
           name="description"
-          defaultValue={job.description}
-          rows={6}
-          className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-          required
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Job Description</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Outline the responsibilities..."
+                  className="min-h-[120px]"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </div>
 
-      <div className="flex gap-4">
-        <button
-          type="submit"
-          className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">
-          Save Changes
-        </button>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="px-6 py-3 border rounded-lg font-bold hover:bg-gray-50 transition">
-          Cancel
-        </button>
-      </div>
-    </form>
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? "Posting..." : "Post Job Listing"}
+        </Button>
+      </form>
+    </Form>
   );
 }
