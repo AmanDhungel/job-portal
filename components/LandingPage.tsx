@@ -40,7 +40,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features/Stats Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
@@ -53,7 +52,6 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-12 text-center">
-            {/* Feature 1 */}
             <div className="p-6">
               <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Search className="text-blue-600 w-8 h-8" />
@@ -65,7 +63,6 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Feature 2 */}
             <div className="p-6">
               <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Users className="text-blue-600 w-8 h-8" />
@@ -77,7 +74,6 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Feature 3 */}
             <div className="p-6">
               <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <ShieldCheck className="text-blue-600 w-8 h-8" />
@@ -91,8 +87,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* Trust Banner */}
       <section className="bg-gray-50 py-12 border-y">
         <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-around items-center opacity-50 grayscale">
           <span className="text-2xl font-bold text-gray-400 uppercase">
@@ -110,7 +104,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto bg-blue-600 rounded-3xl p-12 text-center text-white relative overflow-hidden">
           <div className="relative z-10">

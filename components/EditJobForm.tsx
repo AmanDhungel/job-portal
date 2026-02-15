@@ -37,7 +37,15 @@ export const formSchema = z.object({
 export default function EditJobForm({
   job,
 }: {
-  job: { _id: string; title: string; description: string; location: string };
+  job: {
+    _id: string;
+    title: string;
+    description: string;
+    location: string;
+    salary: string;
+    companyName: string;
+    category: string;
+  };
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -45,12 +53,12 @@ export default function EditJobForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      companyName: "",
-      location: "",
-      category: "",
-      salary: "",
-      description: "",
+      title: job.title,
+      companyName: job.companyName,
+      location: job.location,
+      category: job.category,
+      salary: job.salary,
+      description: job.description,
     },
   });
 

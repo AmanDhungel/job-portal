@@ -12,7 +12,6 @@ export default async function JobDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { userId } = await auth();
 
   await dbConnect();
   const job = await Job.findById(id).lean();
@@ -20,7 +19,6 @@ export default async function JobDetailPage({
   if (!job) {
     notFound();
   }
-
   const jobData = JSON.parse(JSON.stringify(job));
 
   return (
@@ -46,6 +44,12 @@ export default async function JobDetailPage({
               </span>
               <span className="bg-gray-100 px-3 py-1 rounded-full text-sm">
                 Full-time
+              </span>
+              <span className="bg-gray-100 px-3 py-1 rounded-full text-sm">
+                {jobData.salary}
+              </span>
+              <span className="bg-gray-100 px-3 py-1 rounded-full text-sm">
+                {jobData.category}
               </span>
             </div>
           </div>
