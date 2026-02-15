@@ -10,7 +10,7 @@ export default async function EditJobPage({
   params: { id: string };
 }) {
   const { userId } = await auth();
-  const { id } = params;
+  const { id } = await params;
 
   await dbConnect();
 
